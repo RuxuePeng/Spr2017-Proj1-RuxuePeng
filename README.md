@@ -92,7 +92,8 @@ proj/
 └── output/
 ```
 To reproduce the result:
-Please see each subfolder for a README file.
+Please see each subfolder for a README file.  
+Main result can be reproduced from the rp2815-proj1.Rmd file in the lib forder.  
 *Before you start, please clone/download this entire project folder and set R/Rstudio working directory at the Doc folder of this project*
 
 Further Learning Materials:  

@@ -338,14 +338,15 @@ beeswarm(king_sentence$word.count,horizontal = TRUE,
 
 ###3.2.2 Readability Comparison
 It takes as low as a high school Juior student (10th grade) to as high as undergraduate student to understand the unpopular presidents' speeches, but requires a person with bachelor's degree or above to understand the popular ones'.  
-```{r}
+```{r,warning=F}
 Data <- cbind(unpopular=unpop$readability,
               inbetween = ok$readability,
                 popular=pop$readability)
 boxplot(Data,col = brewer.pal(2,"Blues"),horizontal=T,
         main = "Readability",xlab = "grade level required to comprehend the speech")
 
-```
+```  
+
 ####Most Unpopular VS Most Popular, readability  
 Let us compare the top 3 presidents having least popular vote margin with the top 3 having the most, in terms of easiness of understanding the sentences.  
 Visualization-beeswarm plot for Readability

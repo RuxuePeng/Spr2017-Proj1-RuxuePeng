@@ -1,0 +1,431 @@
+---
+title: "ADS Project 1"
+author: "Ruxue Peng, rp2815"
+date: "February 1, 2017"
+output: 
+  html_document: default
+  html_notebook: default
+---
+# Step 0: check and install needed packages. Load the libraries and functions. 
+*Before you start, please set working directory at the doc folder of this project.  
+```{r}
+#setwd("your path for this project file/doc")
+```
+(detailed codes in this part are in rmarkdown file)
+```{r, message=FALSE, warning=FALSE}
+#If you use a win10*64 and have problem with qdap package, run the following code first:
+if (Sys.getenv("JAVA_HOME")!="")
+  Sys.setenv(JAVA_HOME="")
+library(rJava)
+
+packages.used=c("tm", "wordcloud", "dplyr", "tidytext","rvest", "tibble", "qdap", 
+                "sentimentr", "gplots", "dplyr",
+                "tm", "syuzhet", "factoextra", 
+                "beeswarm", "scales", "RColorBrewer",
+                "RANN", "topicmodels","rJava","reshape2","plyr","visNetwork","png")
+
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used, 
+                        intersect(installed.packages()[,1], 
+                                  packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
+
+# load packages
+library('png')
+library('visNetwork')
+library("reshape2")
+library("wordcloud")
+library("dplyr")
+library("plyr")
+library("tidytext")
+library("rvest")
+library("tibble")
+library("qdap")
+library("sentimentr")
+library("gplots")
+library("dplyr")
+library("tm")
+library("syuzhet")
+library("factoextra")
+library("beeswarm")
+library("scales")
+library("RColorBrewer")
+library("RANN")
+library("tm")
+library("topicmodels")
+
+source("../lib/plotstacked.R")
+source("../lib/speechFuncs.R")
+source("../lib/wordcloud_prsd.R")
+source("../lib/Network_flora.R")
+source("../lib/sort_f.R")
+```
+
+#Step 1: Prepare our data 
+##1.1 Data harvest  -Web scrap speech URLs
+Scrap speech URLs from <http://www.presidency.ucsb.edu/>.
+Following the example of [Jerid Francom](http://francojc.github.io/web-scraping-with-rvest/), I used [Selectorgadget](http://selectorgadget.com/) to choose the links I would like to scrap. For this project, I selected all inaugural addresses of past presidents,  I also included several public speeches from Donald Trump for the textual analysis of presidential speeches. 
+(detailed codes in this part are in rmarkdown file)
+
+```{r, message=FALSE, warning=FALSE}
+### Inauguaral speeches
+main.page <- read_html(x = "http://www.presidency.ucsb.edu/inaugurals.php")
+# Get link URLs
+# f.speechlinks is a function for extracting links from the list of speeches. 
+inaug=f.speechlinks(main.page)
+#as.Date(inaug[,1], format="%B %e, %Y")
+inaug=inaug[-nrow(inaug),] # remove the last line, irrelevant due to error.
+```
+
+
+## 1.2 Loading CSV data sets from speech metadata posted on [The American Presidency project](http://www.presidency.ucsb.edu/) and [wikipedia](https://en.wikipedia.org/wiki/List_of_United_States_presidential_elections_by_popular_vote_margin)
+
+we prepared CSV data sets for the speeches we will scrap.  
+(1)The popular_vote_margin.csv file contains popular vote margin of each president from president Andrew Jackson.  
+(2)The inauglist.csv file contains informations like president's name, term, party, inauguration date and total words in the speech.  
+```{r}
+popular_vote <- read.csv("../data/popular_vote_margin.csv",header = T,as.is = T)
+inaug.list<-read.csv("../data/inauglist.csv", stringsAsFactors = FALSE)
+names(inaug.list)[1]<-'President' #fix a column name error
+#Bind the columns and store them into one data frame.
+inaug.list$vote_mar <- c(rep(NA,10),popular_vote$Popular_vote_margin)
+```
+
+## 1.3 Scrap the full texts of speeches from the speech URLs
+
+```{r}
+speech.list<-inaug.list
+speech.list$type=rep("inaug", nrow(inaug.list))
+speech.url<-inaug
+speech.list=cbind(speech.list, speech.url)
+```
+
+Based on the list of speeches, we scrap the main text part of the transcript's html page. For simple html pages of this kind,  [Selectorgadget](http://selectorgadget.com/) is very convenient for identifying the html node that `rvest` can use to scrap its content. For reproducibility, we also save our scrapped speeches into our local folder as individual speech files. 
+
+```{r}
+# Loop over each row in speech.list
+speech.list$fulltext=NA
+for(i in seq(nrow(speech.list))) {
+  text <- read_html(speech.list$urls[i]) %>% # load the page
+    html_nodes(".displaytext") %>% # isloate the text
+    html_text() # get the text
+  speech.list$fulltext[i]=text
+  # Create the file name
+  filename <- paste0("../data/full_speech/",
+                     speech.list$type[i],
+                     speech.list$File[i], "-", 
+                     speech.list$Term[i], ".txt")
+  sink(file = filename) %>% # open file to write 
+  cat(text)  # write the file
+  sink() # close the file
+}
+```
+
+#Step 2: Process Data for future analysis
+##2.1 Divide speech texts into sentences.
+We will use sentences as units of analysis for this project, as sentences are natural languge units for organizing thoughts and ideas.  
+
+##2.2 Calculate wordcount and emotion level of each sentence.
+(1)For each extracted sentence. We assign an sequential id to each sentence in a speech (`sent.id`) and also calculated the number of words in each sentence as *sentence length* (`word.count`).
+(2)For each extracted sentence, we apply sentiment analysis using [NRC sentiment lexion](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm). It has eight basic emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (negative and positive).
+
+```{r, message=FALSE, warning=FALSE}
+#2.1
+sentence.list=NULL
+for(i in 1:nrow(speech.list)){
+  sentences=sent_detect(speech.list$fulltext[i],
+                        endmarks = c("?", ".", "!", "|",";"))
+  #2.2
+  if(length(sentences)>0){
+    emotions=get_nrc_sentiment(sentences)
+    word.count=word_count(sentences)
+    # colnames(emotions)=paste0("emo.", colnames(emotions))
+    # in case the word counts are zeros?
+    emotions=diag(1/(word.count+0.01))%*%as.matrix(emotions)
+    sentence.list=rbind(sentence.list, 
+                        cbind(speech.list[i,-ncol(speech.list)],
+                              sentences=as.character(sentences), 
+                              word.count,
+                              emotions,
+                              sent.id=1:length(sentences)
+                              )
+    )
+  }
+}
+
+#Some non-sentences exist in raw data due to erroneous extra end-of sentence marks. 
+sentence.list=
+  sentence.list%>%
+  filter(!is.na(word.count)) 
+```
+
+##2.3 Generate readability index of speech
+
+Readability test is formulae for evaluating the readability of text, which is typically "based on syllables, words, and sentences in order to approximate the grade level required to comprehend a text.", quoting Max Ghenis, an R-blogger.  
+Following the [blog of Max Ghenis](https://www.r-bloggers.com/statistics-meets-rhetoric-a-text-analysis-of-i-have-a-dream-in-r/), I calculated the readability level of each president's speech.  
+'qdap' package offers several of the most popular formulas, of which I chose the [Automated Readability Index](https://trinker.github.io/qdap/Readability.html).
+
+```{r}
+#(1)calculate the readability of speech as a whole:
+grouping_rule <- paste(sentence.list$President,"Term:",sentence.list$Term)
+readability.table <- automated_readability_index(sentence.list$sentences,grouping_rule)$Readability
+#(2)store the result in speech.list data frame:
+speech.list$readability <- readability.table$Automated_Readability_Index
+
+#(3)calculate each sentence's readability:
+    #first add a column of index
+sentence.list <- cbind(index =c(1:nrow(sentence.list)),sentence.list)
+    #store the readability data into sentence.list data frame
+sentence.list$readability <- automated_readability_index(sentence.list$sentences,sentence.list$index)$Readability$Automated_Readability_Index
+sentence.list$readability <- replace(sentence.list$readability,sentence.list$readability<0,0.001) 
+```
+
+##2.4 Calculate average wordcounts per sentence for each president
+
+```{r}
+speech.list$avg_wordcount <- tapply(sentence.list$word.count,grouping_rule,mean)
+```
+
+##2.5 Divide president by popularity
+To better study the relationship between popularity of president during election and their inaugural speech, I group the presidents by whether or not they are popular among the people.  
+Unpopular group: popular vote margin <= 20th quantile of all the vote margin data
+popular group: popular vote margin >= 80th quantile of all the vote margin data
+ok group: everyone in between
+```{r}
+#(1)calculate 20th and 80th quantile
+lowbound <- quantile(popular_vote$Popular_vote_margin,0.20)
+highbound <- quantile(popular_vote$Popular_vote_margin,0.80)
+#(2)we want only the 2th,3th,8th,9th column, which are Filename(President name),term,vote margin and type of file.
+unpopular.prsd<- na.omit(speech.list[,c(1,2,3,8,9)][(speech.list$vote_mar <= lowbound) & (speech.list$vote_mar > 0) ,])
+unpopular.prsd <- unpopular.prsd[order(unpopular.prsd$vote_mar),]
+popular.prsd <- na.omit(speech.list[,c(1,2,3,8,9)][speech.list$vote_mar >= highbound,])
+popular.prsd <- popular.prsd[order(popular.prsd$vote_mar,decreasing = T),]
+ok.prsd <- na.omit(speech.list[,c(1,2,3,8,9)][(speech.list$vote_mar > lowbound) & (speech.list$vote_mar < highbound) ,])
+
+#Who is the most unpopular president during his election? The first one in the list:
+print("unpopular ones")
+unpopular.prsd
+#Who is the most popular president during his election? The first one in the list:
+print("popular ones")
+popular.prsd
+
+#(3)subseting our other data in terms of popularity
+#defining what to keep in each group
+speech.list$grouping_index <- paste(speech.list$File,speech.list$Term)
+grouping_rule1 <- paste(unpopular.prsd$File,unpopular.prsd$Term)
+grouping_rule2 <- paste(popular.prsd$File,popular.prsd$Term)
+grouping_rule3 <- paste(ok.prsd$File,ok.prsd$Term)
+#subseting different group
+unpop <- speech.list[speech.list$grouping_index %in% grouping_rule1,]
+pop <- speech.list[speech.list$grouping_index %in% grouping_rule2,]
+ok <- speech.list[speech.list$grouping_index %in% grouping_rule3,]
+
+```
+
+# Step 3: Data analysis 
+
+##3.1 Get started by drawing Wordclouds
+
+For the speeches, I remove extra white space, convert all letters to the lower case, remove [stop words](https://github.com/arc12/Text-Mining-Weak-Signals/wiki/Standard-set-of-english-stopwords), removed empty words due to formatting errors, and remove punctuation. Then I compute the [Document-Term Matrix (DTM)](https://en.wikipedia.org/wiki/Document-term_matrix) and draw the wordcloud. I have wrapped the whole process in a function named "wordcloud_prsd".  
+
+###3.1.1 Inspect an overall wordcloud
+```{r,fig.width=12,fig.height=6}
+path="../data/inaugurals/"
+#use my own function
+#can choose color pallete of cloud, options are: Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd Purples RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
+wordcloud_prsd(path,color.pallete = "Blues" )
+```
+
+###3.1.2 Inspect popular presidents' vs unpopular presidents' wordcloud
+Popular presidents used affirmative and confident words frequently, such as "must" and tend to focus on the big picture, such as "world".
+In terms of unpopular presidents, an interesting frequently-visited word is "states", having higher frequncy than "nation", which is different from the popular presidents.
+```{r,fig.height=6,fig.width=12,warning=F}
+#1st: find the file corresponding to the group of president:
+for(i in seq(nrow(unpopular.prsd))) {
+  filename <- paste0("../data/full_speech/",
+                     unpopular.prsd$type[i],
+                     unpopular.prsd$File[i], "-", 
+                     unpopular.prsd$Term[i], ".txt")
+  destination <- paste0("../data/unpopular/",
+                     unpopular.prsd$type[i],
+                     unpopular.prsd$File[i], "-", 
+                     unpopular.prsd$Term[i], ".txt")
+  #put the file in a new folder called 'unpopular'
+  file.copy(from = filename,to = destination)
+}
+
+for(i in seq(nrow(popular.prsd))) {
+  filename <- paste0("../data/full_speech/",
+                     popular.prsd$type[i],
+                     popular.prsd$File[i], "-", 
+                     popular.prsd$Term[i], ".txt")
+  destination <- paste0("../data/popular/",
+                     popular.prsd$type[i],
+                     popular.prsd$File[i], "-", 
+                     popular.prsd$Term[i], ".txt")
+  #put the file in a new folder called 'popular'
+  file.copy(from = filename,to = destination)
+}
+
+#draw the wordcloud
+path1 <- "../data/unpopular/"
+path2 <- "../data/popular/"
+par(mfrow = c(1,2))
+wordcloud_prsd(path1)
+wordcloud_prsd(path2,color.pallete = "OrRd")
+```
+
+##3.2 Compare sentence length and readability
+Unpopular presidents used short sentences and easy words and expressions, trying to be more comprehensible to the public, than the popular ones.  
+
+###3.2.1 Observing sentence length  
+The mass of popular president's wordcount is generally bigger than the unpopular ones,meaning popular presidents made longer sentences.  
+```{r,warning=F}
+Data_1 <- cbind(unpopular=unpop$avg_wordcount,
+              inbetween = ok$avg_wordcount,
+                popular=pop$avg_wordcount)
+boxplot(Data_1,col = brewer.pal(3,"Blues"),horizontal=T,
+        main = "Sentence Length",xlab = "Average Word Count per sentence")
+```  
+
+####Most Unpopular VS Most Popular, sentence length
+Let us compare the top 3 president with least popular vote margin and the top 3 with the most, in terms for sentence length.  
+The three popular ones had short sentences in the beginning of the speech and got longer and longer as the speech went to an end, while the unpopular ones had short sentences spreaded out and mixed with the longer sentences.  
+```{r}
+queen<-unpopular.prsd[1:3,];king<-popular.prsd[1:3,]
+subset_rule    <- sentence.list$President %in% queen$President &(sentence.list$Term %in% queen$Term)
+queen_sentence <-sentence.list[subset_rule,c("President",    "File"  ,       "Term" ,  "sentences",    "word.count" ,  "sent.id" ,     "readability" )]
+subset_rule    <- sentence.list$President %in% king$President &(sentence.list$Term %in% king$Term)
+king_sentence <-sentence.list[subset_rule,c("President",    "File"  ,       "Term" ,  "sentences",    "word.count" ,  "sent.id" ,     "readability" )]
+```
+Visualization-barplot for wordcount  
+```{r,fig.height=6,fig.width=9}
+#visualizing the data
+par(mfrow=c(2,1))
+queen_sentence$index <- seq(nrow(queen_sentence))
+barplot(queen_sentence$word.count,
+        #appearance adjustments
+        col = alpha(rainbow(100),alpha  = 0.6),
+        border = alpha(rainbow(100),alpha  = 0.6),
+        xlim = c(0,max(queen_sentence$index)),ylim = c(0,80),
+        main="Sentence Length over Time-Top 3 Unpopular Presidents",
+        xlab = "Time",ylab = "Words per Sentence")
+king_sentence$index <- seq(nrow(king_sentence))
+barplot(king_sentence$word.count,
+        #appearance adjustments
+        col = alpha(rainbow(100),alpha  = 0.6),
+        border = alpha(rainbow(100),alpha  = 0.6),
+        xlim = c(0,max(king_sentence$index)),ylim = c(0,80),
+        main="Sentence Length over Time-Top 3 Popular Presidents",
+        xlab = "Time",ylab = "Words per Sentence")
+
+```
+Visualization-beeswarm plot for wordcount  
+```{r,fig.height=6,fig.width=9}
+par(mfrow=c(2,1))
+beeswarm(queen_sentence$word.count,horizontal = TRUE, 
+         pch=16, 
+         col="cornflowerblue",
+         col.main = "Blue", 
+         cex=0.55, cex.axis=1, cex.lab=1,xlim = c(0,80),
+         las=2, xlab="", ylab="sentence length",
+         main="Sentence Length-Top 3 Unpopular Presidents")
+king_sentence$index <- seq(nrow(king_sentence))
+beeswarm(king_sentence$word.count,horizontal = TRUE, 
+         pch=16, col="Pink", col.main = "Red",
+         cex=0.55, cex.axis=1, cex.lab=1,xlim = c(0,80),
+         las=2, xlab="Time", ylab="sentence length",
+         main="Sentence Length-Top 3 Popular Presidents")
+
+```
+
+
+###3.2.2 Readability Comparison
+It takes as low as a high school Juior student (10th grade) to as high as undergraduate student to understand the unpopular presidents' speeches, but requires a person with bachelor's degree or above to understand the popular ones'.  
+```{r}
+Data <- cbind(unpopular=unpop$readability,
+              inbetween = ok$readability,
+                popular=pop$readability)
+boxplot(Data,col = brewer.pal(2,"Blues"),horizontal=T,
+        main = "Readability",xlab = "grade level required to comprehend the speech")
+
+```
+####Most Unpopular VS Most Popular, readability  
+Let us compare the top 3 presidents having least popular vote margin with the top 3 having the most, in terms of easiness of understanding the sentences.  
+Visualization-beeswarm plot for Readability
+```{r,fig.width=12,fig.height=12}
+#visualizing the data
+queen_sentence$index <- seq(nrow(queen_sentence))
+par(mfrow=c(2,1))
+barplot(queen_sentence$readability,
+        #appearance adjustments
+        col = alpha(brewer.pal(8,"PuBu"),alpha  = 0.6),
+        border = alpha(brewer.pal(8,"PuBu"),alpha  = 0.6),
+        main="Readability-Top 3 Unpopular Presidents",ylim = c(0,40),
+        xlab = "Time",ylab = "Grade level required to understand")
+king_sentence$index <- seq(nrow(king_sentence))
+barplot(king_sentence$readability,
+        #appearance adjustments
+        col = alpha(brewer.pal(8,"RdGy"),alpha  = 0.6),
+        border = alpha(brewer.pal(8,"RdGy"),alpha  = 0.6),
+        main="Readability-Top 3 Popular Presidents",ylim = c(0,40),
+        xlab = "Time",ylab = "Grade level required to understand")
+
+```
+
+##3.3 Sentiment Analysis and Comparison
+In this part,we compare the sentiment in each president's inaugural speech and then make further comparison between the popular group and the unpopular one.  
+Conclusion:  
+
+###3.3.1 Calculate speech sentiment index by averaging the sentiment index of each sentence   
+
+```{r}
+sentence_sentiment <- sentence.list[,c("President","File","Term",
+                                       "anger","anticipation", "disgust",
+                                       "fear" ,"joy" ,"sadness","surprise","trust" )]
+#split-apply-combine
+Avg_column <- function(x,colstart,colend){
+  return(apply(x[colstart:colend],2,mean))
+}
+speech_sentiment <- ddply(sentence_sentiment,.(President,Term),Avg_column,colstart=4,colend=11)
+
+sentence_sen_direction <- sentence.list[,c("President","File","Term","negative","positive")]
+speech_sen_direction <- ddply(sentence_sen_direction,.(President,Term),Avg_column,colstart=4,colend=5)
+```  
+
+###3.3.2 Visualization- Interactive Network graph  
+Making use of ["visNetwork" package](https://datastorm-open.github.io/visNetwork/) and some [related learning materials](http://kateto.net/network-visualization),I wrote a function myself ploting Network of Presidents and their speech emotions. 
+You can try zoom-in, click on nodes, select by president names and emotion names and etc.  
+The width of links represent the intensiveness of corresponding emotions.  
+The presidents, whose vote margin displays "NA", has no popular vote margin data, since the data happened too long ago.
+```{r}
+#Running this function,the output plot will be displayed below as well stored in a html file named network.html in the output file of this project
+Network_flora()
+```  
+#### Interesting finding  
+*For unpopular president candidates like Donald Trump (losing on popular vote), emotions are more to the intensive side,such as "Joy" and "Disgust.
+```{r,fig.height=10,fig.width=22,echo=F}
+plot.new()
+pp <- readPNG("../image/trump_part_network.png")
+rasterImage(pp,0,0,1,1)
+```
+  
+*Popular presidents like Eisenhower at his second term, tend to have more steady emotion scores.
+```{r,fig.height=10,fig.width=22,echo=F}
+plot.new()
+pp <- readPNG("../image/Popular_Eisenhower.png")
+rasterImage(pp,0,0,1,1)
+```
+
+####Some intersting screen shots  
+By the way, you can drag a mode interactively to see the links better.  
+```{r,fig.height=10,fig.width=22}
+library("png")
+plot.new()
+pp <- readPNG("../image/drag2.png")
+rasterImage(pp,0,0,1,1)
+```
+

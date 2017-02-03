@@ -60,8 +60,7 @@ DF <- melt(speech_sentiment,variable.name = "emotion",value.name = "emo_index",
 DF$to <- as.numeric(factor(DF$emotion))+100
 names(DF)[1] <- "from"
 #note:Since plotting takes time, we only choose a collection of them to demonstrate
-#edges <- DF[seq(1,nrow(DF),4),]
-edges<- DF
+edges <- DF[seq(1,nrow(DF),2),]
 #4.prettify for edages
 edges$width <- edges$emo_index*100 #magnify the difference
 

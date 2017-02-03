@@ -7,28 +7,29 @@
 Inspiration:  
 Having won the election by one of *the smallest popular vote margins* in history, my favorite U.S. president has always been John F. Kennedy. He had only *49.72%* of the popular vote.  But he's also remembered as a president who has delivered one of the most memorable and enduring inaugural speeches.
 
-*Is popular vote margin related to U.S. president's performance in inaugural speech?* 
+###Is popular vote margin related to U.S. president's performance in inaugural speech?  
 In other words, does pressure to win back the public's heart push U.S. presidents to deliver more comprehansible and admirable inaugural speeches? Let's find out.
-
+==================
 + Project title: Does less popular presidents deliver better inaugural speech?
-+ This project is conducted by Ruxue Peng
++ This project is conducted by *Ruxue Peng, Columbia UNI: rp2815*
 
-+ Project summary: 
++ Project summary:  
   I approach the question by first, quantify the concept of a "good" speech. Therefore, I calculated the sentene length of every inaugural speech and also calculatd *readability index* which tells how easy a text is for people to understand, by estimating the *grade level* required to understand it. Secondly, I quantified the concept of "popular" and "unpopular" presidents, grouping them by vote margin. At last, I visualized the relationship by standard EDA, wordcloud, sentiment analysis plus plotted a really cool *interactive network graph". 
- + Conclusion:
-  * Unpopular presidents tried to be more comprehensible by making sentences shorter and spreading these easy sentences across their speeches
-  * It takes as low as a high school junior student to understand "unpopular" presidents, but an average of higher to understand the "popular ones"
-  * Even though individual "unpopular" president, like Trump, demostrated an intense emotion during his speech, this group as a whole does not differ much from the "popular" one in term of emotion level.
-1. Grouping result (already-ordered)
++ Conclusion:
+ * Unpopular presidents tried to be more comprehensible by making sentences shorter and spreading these easy sentences across their speeches
+ * It takes as low as a high school junior student to understand "unpopular" presidents, but an average of higher to understand the "popular ones"
+ * Even though individual "unpopular" president, like Trump, demostrated an intense emotion during his speech, this group as a whole does not differ much from the "popular" one in term of emotion level.
+
+###Grouping result (already-ordered)
 * "unpopular" presidents are
   ![image](output/unpopular_group.png)
 * "popular" presidents are
   ![image](output/popular_group.png)
 
-2. Comparison by sentence length and readability
+###Comparison by sentence length and readability
 Unpopular presidents used short sentences and easy words and expressions, trying to be more comprehensible to the public, than the popular ones.  
 
-2.1 Sentence Length
+1. Sentence Length
 * boxplot  
   The mass of popular president's wordcount is generally bigger than the unpopular ones,meaning popular presidents made longer sentences.  
   ![image](output/box.png)
@@ -40,23 +41,19 @@ Unpopular presidents used short sentences and easy words and expressions, trying
   ![image](output/senlen_top3_bees.png)
 
   
-2.2 Readability  
+2. Readability  
     It takes as low as a high school Juior student (10th grade) to as high as undergraduate student to understand the unpopular presidents' speeches, but requires a person with bachelor's degree or above to understand the popular ones'.  
   ![image](output/Readability.png) 
   ![image](output/read_top3.png)
 
-3. Sentiment Analysis
+###Sentiment Analysis
 In the visualization of the 8 knids of emotions, I used *Interactive Network graph*.    
 Making use of ["visNetwork" package](https://datastorm-open.github.io/visNetwork/) and some [related learning materials](http://kateto.net/network-visualization),I wrote a function myself ploting Network of Presidents and their speech emotions. 
 * Overview of the output  
   Since the nodes and links are too much, I only used half of the data to generate this plot.  
   ![image](output/network_1.png)
-  
-3.1 Interactive Network visualization  
-  I have change the plot to allow interaction.  
-  I created a public website to allow you play with it: *www.ruxuepeng.tech*  
-  
-4. Interesting Findings from the plot  
+    
+### Interesting Findings from the plot  
   *For unpopular president candidates like Donald Trump (losing on popular vote), emotions are more to the intensive side,such as "Joy" and "Disgust.  
   ![image](output/trump_part_network.png)
   
@@ -65,7 +62,10 @@ Making use of ["visNetwork" package](https://datastorm-open.github.io/visNetwork
   
   *Even though individual "unpopular" president, like Trump, demostrated an intense emotion during his speech, this group as a whole does not differ much from the "popular" one in term of emotion level.
 
-  
+#### Interactive Network visualization  
+  I have change the plot to allow interaction.  
+  I created a public website to allow you play with it: *www.ruxuepeng.tech*  
+
 Some ideas on how you may interact with it
 * drag the graph to center your desirable node point, zoom in, click on it
 * drag the point to get a clear view of the connections between president and their emotions during speech
@@ -75,7 +75,7 @@ Some ideas on how you may interact with it
 * use the "selection by group" bar on the left to observe "unpopular" group data with "popular" group data
 * try creating your own cool graph by refering to the "Network_flora.R" function file in lib folder
   
-Have fun!
+##Have fun!  
 
 
 

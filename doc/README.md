@@ -1,6 +1,6 @@
 # Project 1:
 ### Doc folder
-##Project title Does less popular presidents deliver better inaugural speech?
+##Project title: The Unwelcomed Presidents vs the Loved Ones
 ###Ruxue Peng, Columbia University, UNI: rp2815
 ##Project Abstract   
   Is popular vote margin related to U.S. president's performance in inaugural speech?In easier terms, does pressure to win back the public's heart push U.S. presidents to deliver more comprehansible and admirable inaugural speeches?  

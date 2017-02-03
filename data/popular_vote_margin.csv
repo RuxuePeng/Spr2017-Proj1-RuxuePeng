@@ -1,0 +1,49 @@
+index,year,winner,winner_party,Popular_vote_margin,Runner_up,loser_party
+12,1828,"Jackson,Andrew Jackson",Dem.,55.93,"Adams,John Quincy Adams",N. R.
+13,1832,"Jackson,Andrew Jackson",Dem.,54.74,"Clay,Henry Clay",N. R.
+14,1836,"Van Buren,Martin Van Buren",Dem.,50.79,"Harrison,William Henry Harrison",Whig
+15,1840,"Harrison,William Henry Harrison",Whig,52.87,"Van Buren,Martin Van Buren",Dem.
+16,1844,"Polk,James Polk",Dem.,49.54,"Clay,Henry Clay",Whig
+17,1848,"Taylor,Zachary Taylor",Whig,47.28,"Cass,Lewis Cass",Dem.
+18,1852,"Pierce,Franklin Pierce",Dem.,50.83,"Scott,Winfield Scott",Whig
+19,1856,"Buchanan,James Buchanan",Dem.,45.29,"Fr¨¦mont,John Fr¨¦mont",Rep.
+20,1860,"Lincoln,Abraham Lincoln",Rep.,39.65,"Breckinridge,John Breckinridge",Dem.
+21,1864,"Lincoln,Abraham Lincoln",Rep.,55.03,"McClellan,George McClellan",Dem.
+22,1868,"Grant,Ulysses Grant",Rep.,52.66,"Seymour,Horatio Seymour",Dem.
+23,1872,"Grant,Ulysses Grant",Rep.,55.58,"Greeley,Horace Greeley",L. R.
+24,1876,"Hayes,Rutherford Hayes",Rep.,47.92,"Tilden,Samuel Tilden",Dem.
+25,1880,"Garfield,James Garfield",Rep.,48.31,"Hancock,Winfield Scott Hancock",Dem.
+26,1884,"Cleveland,Grover Cleveland",Dem.,48.85,"Blaine,James Blaine",Rep.
+27,1888,"Harrison,Benjamin Harrison",Rep.,47.8,"Cleveland,Grover Cleveland",Dem.
+28,1892,"Cleveland,Grover Cleveland",Dem.,46.02,"Harrison,Benjamin Harrison",Rep.
+29,1896,"McKinley,William McKinley",Rep.,51.02,"Bryan,William Jennings Bryan",Dem.
+30,1900,"McKinley,William McKinley",Rep.,51.64,"Bryan,William Jennings Bryan",Dem.
+31,1904,"Roosevelt,Theodore Roosevelt",Rep.,56.42,"Parker,Alton Brooks Parker",Dem.
+32,1908,"Taft,William Taft",Rep.,51.57,"Bryan,William Jennings Bryan",Dem.
+33,1912,"Wilson,Woodrow Wilson",Dem.,41.84,"Roosevelt,Theodore Roosevelt",Prog.
+34,1916,"Wilson,Woodrow Wilson",Dem.,49.24,"Hughes,Charles Evans Hughes",Rep.
+35,1920,"Harding,Warren Harding",Rep.,60.32,"Cox,James Cox",Dem.
+36,1924,"Coolidge,Calvin Coolidge",Rep.,54.04,"Davis,John Davis",Dem.
+37,1928,"Hoover,Herbert Hoover",Rep.,58.21,"Smith,Al Smith",Dem.
+38,1932,"Roosevelt,Franklin Roosevelt",Dem.,57.41,"Hoover,Herbert Hoover",Rep.
+39,1936,"Roosevelt,Franklin Roosevelt",Dem.,60.8,"Landon,Alf Landon",Rep.
+40,1940,"Roosevelt,Franklin Roosevelt",Dem.,54.74,"Willkie,Wendell Willkie",Rep.
+41,1944,"Roosevelt,Franklin Roosevelt",Dem.,53.39,"Dewey,Thomas Dewey",Rep.
+42,1948,"Truman,Harry Truman",Dem.,49.55,"Dewey,Thomas Dewey",Rep.
+43,1952,"Eisenhower,Dwight Eisenhower",Rep.,55.18,"Stevenson,Adlai Stevenson",Dem.
+44,1956,"Eisenhower,Dwight Eisenhower",Rep.,57.37,"Stevenson,Adlai Stevenson",Dem.
+45,1960,"Kennedy,John Kennedy",Dem.,49.72,"Nixon,Richard Nixon",Rep.
+46,1964,"Johnson,Lyndon Johnson",Dem.,61.05,"Goldwater,Barry Goldwater",Rep.
+47,1968,"Nixon,Richard Nixon",Rep.,43.42,"Humphrey,Hubert Humphrey",Dem.
+48,1972,"Nixon,Richard Nixon",Rep.,60.67,"McGovern,George McGovern",Dem.
+49,1976,"Carter,Jimmy Carter",Dem.,50.08,"Ford,Gerald Ford",Rep.
+50,1980,"Reagan,Ronald Reagan",Rep.,50.75,"Carter,Jimmy Carter",Dem.
+51,1984,"Reagan,Ronald Reagan",Rep.,58.77,"Mondale,Walter Mondale",Dem.
+52,1988,"Bush,George H. W. Bush",Rep.,53.37,"Dukakis,Michael Dukakis",Dem.
+53,1992,"Clinton,Bill Clinton",Dem.,43.01,"Bush,George H. W. Bush",Rep.
+54,1996,"Clinton,Bill Clinton",Dem.,49.23,"Dole,Bob Dole",Rep.
+55,2000,"Bush,George W. Bush",Rep.,47.87,"Gore,Al Gore",Dem.
+56,2004,"Bush,George W. Bush",Rep.,50.73,"Kerry,John Kerry",Dem.
+57,2008,"Obama,Barack Obama",Dem.,52.93,"McCain,John McCain",Rep.
+58,2012,"Obama,Barack Obama",Dem.,51.06,"Romney,Mitt Romney",Rep.
+59,2016,"Trump,Donald Trump",Rep.,45.98,"Clinton,Hillary Clinton",Dem.

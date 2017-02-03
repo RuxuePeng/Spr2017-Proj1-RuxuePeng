@@ -24,7 +24,7 @@ In other words, does pressure to win back the public's heart push U.S. president
 
 3. Network visualization
 [My website](www.ruxuepeng.tech) <--I created a public website to allow you play with it.  
-(If the link don't work, try googling: www.ruxuepeng.com)
+(If the link don't work, try googling: www.ruxuepeng.tech)
 
 
 

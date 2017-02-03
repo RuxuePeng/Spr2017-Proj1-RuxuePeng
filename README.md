@@ -23,7 +23,7 @@ In other words, does pressure to win back the public's heart push U.S. president
 
 3. Network visualization
 
-[click me!](https://drive.google.com/file/d/0B--tVLdnZKpkcnhhTFBCcjJiVkk/view?usp=sharing) to play with it
+[click me!](ftp://ftp.ruxuepeng.tech/network.html) I created a public website to allow you play with it.
 
 
 

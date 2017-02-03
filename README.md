@@ -8,8 +8,8 @@ Inspiration:
 Having won the election by one of *the smallest popular vote margins* in history, my favorite U.S. president has always been John F. Kennedy. He had only *49.72%* of the popular vote.  But he's also remembered as a president who has delivered one of the most memorable and enduring inaugural speeches.
 
 *Is popular vote margin related to U.S. president's performance in inaugural speech?*  
-In easier terms, does pressure to win back the public's heart push U.S. presidents to deliver more comprehansible and admirable inaugural speeches? Let's find out.
-==================
+  In easier terms, does pressure to win back the public's heart push U.S. presidents to deliver more comprehansible and admirable inaugural speeches? Let's find out.
+
 + Project title: Does less popular presidents deliver better inaugural speech?
 + This project is conducted by *Ruxue Peng, Columbia UNI: rp2815*
 
@@ -95,7 +95,8 @@ To reproduce the result:
 Please see each subfolder for a README file.
 *Before you start, please clone/download this entire project folder and set R/Rstudio working directory at the Doc folder of this project*
 
-Further Learning Materials:
+Further Learning Materials:  
+
 [Web Scrapping](http://francojc.github.io/web-scraping-with-rvest/)  
 
 [Selectorgadget](http://selectorgadget.com/)  

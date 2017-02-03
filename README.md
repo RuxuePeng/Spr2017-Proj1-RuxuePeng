@@ -21,10 +21,9 @@ In other words, does pressure to win back the public's heart push U.S. president
   * Even though individual "unpopular" president, like Trump, demostrated an intense emotion during his speech, this group as a whole does not differ much from the "popular" one in term of emotion level.
 
 
-3. Network visualization
 
-ftp://ftp.ruxuepeng.tech/network.html 
-I created a public website to allow you play with it.
+3. Network visualization
+[My website](www.ruxuepeng.tech) <--I created a public website to allow you play with it.
 
 
 
